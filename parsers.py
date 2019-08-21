@@ -156,6 +156,29 @@ class Parser(Generic[T]):
 		return _or
 
 
+	def before(self, p2: "Parser[U]") -> "Parser[U]":
+		"""
+		A parser for U which only succeeds if immediately preceeded
+		by a successful match by this parser
+		"""
+		def _second(t: Tuple[T, U]) -> U:
+			return t[1]
+
+		return (self * p2).map(_second)
+
+
+	def then(self, p2: "Parser[U]") -> "Parser[T]":
+		"""
+		A parser for T which only succeeds if immediately followed
+		by a successful match by 'p2'. Both this and p2's input text
+		are consumed
+		"""
+		def _first(t: Tuple[T, U]) -> T:
+			return t[0]
+
+		return (self * p2).map(_first)
+
+
 class ParserRef(Generic[T]):
 	def set(self, p: Parser[T]):
 		self._p = p
